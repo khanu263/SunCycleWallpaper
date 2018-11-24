@@ -18,11 +18,12 @@ $ python3 -m pip install requests
 
 ### Installation
 
-1.  Get four wallpapers -- one each for dusk, dawn, day and night.
+1. Get four wallpapers -- one each for dusk, dawn, day and night.
 2. Grab `SunCycleChanger.py` and put it anywhere on your system (preferably somewhere in the user filesystem).
-3. Edit the shebang on line 1 to point to your Python executable (e.g. `/usr/bin/python3`)
-3. Edit lines 17-20 in the script to point to your desired wallpapers.
-4. Create a file for the script to store sunrise/sunset and location data (e.g. `touch SunCycleData.txt`) and edit line 21 in the script to point to that file.
+3. Edit the shebang on line 1 to point to your Python executable (e.g. `/usr/bin/python3`).
+4. Edit lines 17-20 in the script to point to your desired wallpapers.
+5. Create a file to store sunrise/sunset and location data (e.g. `touch SunCycleData.txt`) and edit line 21 in the script to point to that file.
+6. Make `SunCycleChanger.py` executable (e.g. `chmod +x /path/to/SunCycleChanger.py`)
 
 The script is set to the following schedule:
 
