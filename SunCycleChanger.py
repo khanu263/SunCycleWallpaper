@@ -1,5 +1,11 @@
 #!/path/to/python/executable
 
+## SunCycleChanger.py
+## by Umair Khan
+
+## A script to change the wallpaper in a GNOME desktop environment with 
+## location-based real-time sunrise/sunset data.
+
 ## Imports
 import requests
 import json

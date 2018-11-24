@@ -43,10 +43,6 @@ For now, the simplest way to automate running the script is to open Startup Appl
 /bin/bash -c "sleep 5 && while true; do /path/to/SunCycleChanger.py ; sleep 300; done"
 ```
 
-## Contributing
-
-Pull requests are welcome -- for major changes please create a new issue.
-
 ## Acknowledgements
 
 -  [requests](https://github.com/requests/requests) - for API calls
@@ -57,8 +53,8 @@ Original inspired by [this](https://old.reddit.com/r/androidthemes/comments/452t
 
 ## Future Features
 
-1. implement compatibility with cron
-2. implement logging
+- cron compatibility
+- option to log results/errors to a file
 
 ## License
 
