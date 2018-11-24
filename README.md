@@ -55,6 +55,7 @@ Original inspired by [this](https://old.reddit.com/r/androidthemes/comments/452t
 
 - cron compatibility
 - option to log results/errors to a file
+- easier/automated installation
 
 ## License
 
