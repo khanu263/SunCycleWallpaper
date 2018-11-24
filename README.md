@@ -50,7 +50,7 @@ For now, the simplest way to automate running the script is to open Startup Appl
 -  [ip-api.com](http://ip-api.com/) - approximating location
 -  [Sunrise Sunset](https://sunrise-sunset.org/) - getting sunrise/sunset times
 
-Original inspired by [this](https://old.reddit.com/r/androidthemes/comments/452tfn/firewatch_with_changing_wallpapers/) Reddit post. For the wallpapers seen in the demonstration gif, go [here](https://imgur.com/gallery/D6ia1).
+Originally inspired by [this](https://old.reddit.com/r/androidthemes/comments/452tfn/firewatch_with_changing_wallpapers/) Reddit post. For the wallpapers seen in the demonstration gif, go [here](https://imgur.com/gallery/D6ia1).
 
 ## Future Features
 
