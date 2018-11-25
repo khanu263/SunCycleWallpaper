@@ -4,6 +4,8 @@ A simple Python script to change the wallpaper in a GNOME desktop environment wi
 
 ![Demonstration](demo.gif)
 
+*Note: An internet connection is required for initial setup. If an internet connection is not available in the future, the script will update the wallpaper based on the last-known location and sunrise/sunset data.*
+
 ## Getting Started
 
 Tested with Python 3.6.7 and GNOME Shell 3.28.3. Uses the `gsettings` command to change the wallpaper.
