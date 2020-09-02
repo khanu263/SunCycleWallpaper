@@ -1,65 +1,41 @@
 # SunCycleWallpaper
 
-A simple Python script to change the wallpaper in a GNOME desktop environment with location-based real-time sunrise/sunset data.
+A Python script to change the wallpaper in a GNOME desktop environment according to location-based real-time sunrise/sunset data.
 
 ![Demonstration](demo.gif)
 
-*Note: An internet connection is required for initial setup. If an internet connection is not available in the future, the script will update the wallpaper based on the last-known location and sunrise/sunset data.*
-
-## Getting Started
-
-Tested with Python 3.6.7 and GNOME Shell 3.28.3. Uses the `gsettings` command to change the wallpaper.
+*Note: An internet connection is required. If the connection is lost, the wallpaper will be updated based on the last-known location and sunrise/sunset data.*
 
 ### Prerequisites
 
-Make sure you have the `requests` module installed for Python 3.
+This script was developed with Python 3.8.2 and GNOME Shell 3.36.4, but things should work with any version of Python 3 and any reasonably modern version of the GNOME shell, since the `gsettings` command is used to change the wallpaper.
 
-```bash
-$ python3 -m pip install requests
-```
+Before getting started, make sure you have the `requests` and `dateutil` modules installed for Python 3. In particular, these modules should be accessible from your "base" version of Python 3, outside of any environments.
 
 ### Installation
 
-1. Get four wallpapers -- one each for dusk, dawn, day and night.
-2. Grab `SunCycleChanger.py` and put it anywhere on your system (preferably somewhere in the user filesystem).
-3. Edit the shebang on line 1 to point to your Python executable (e.g. `/usr/bin/python3`).
-4. Edit lines 17-20 in the script to point to your desired wallpapers.
-5. Create a file to store sunrise/sunset and location data (e.g. `touch SunCycleData.txt`) and edit line 21 in the script to point to that file.
-6. Make `SunCycleChanger.py` executable (e.g. `chmod +x /path/to/SunCycleChanger.py`)
+1. Clone this repository somewhere on your computer.
+2. Run `install.sh` and follow the prompts.
 
-The script is set to the following schedule:
+### How things work
 
-- dawn wallpaper -- 45 min before sunrise to 30 min after sunrise
-- day wallpaper -- 30 min after sunrise to 45 min before sunset
-- dusk wallpaper -- 45 min before sunset to 30 min after sunset
-- night wallpaper -- 30 min after sunset to 45 min before sunrise
+By default, everything is installed to `~/.scw`. The installation script will set up a cron job that runs the updater every fifth minute of every hour, so you should start seeing results pretty soon. The output from every run of the updater is stored at `~/.scw/log.txt`.
 
-To change this schedule, edit lines 160-163 in the script as desired.
+The configuration data entered during the installation process is formatted as JSON and stored in `~/.scw/config.json`. If you want to change the wallpaper paths or dawn/dusk windows, this is the file to edit.
 
-### Automation
+The updater stores location and sunrise/sunset information in `~/.scw/data.json`. You shouldn't need to touch this file, but it is human-readable, so if weird things are happening and you can't make sense of the log file, check out this file. The `date` field should match your system's date, and the sunrise/sunset times should be stored as UTC timestamps. This data is only updated if the date or location changes, so for most updater runs this file remains unchanged.
 
-Although the ideal way to run the script every five minutes would be with cron, there are lots of issues with permissions and environment variables I have yet to solve.
+Note that the cron job doesn't actually run the Python script itself -- it runs `~/.scw/run.sh`, which sets up the environment variable to allow the `gsettings` command to work and then runs the Python script and redirects output to the log file. If you ever need to run the script manually, you can navigate to `~/.scw` and run `python3 main.py`, which will print the output instead of putting it in the log file.
 
-For now, the simplest way to automate running the script is to open Startup Applications and add the following command:
+### Acknowledgements
 
-```bash
-/bin/bash -c "sleep 5 && while true; do /path/to/SunCycleChanger.py ; sleep 300; done"
-```
+-  [requests](https://requests.readthedocs.io/en/master/) -- for API calls
+-  [dateutil](https://dateutil.readthedocs.io/en/stable/) -- for date/time calculations
+-  [ip-api.com](http://ip-api.com/) -- approximating location
+-  [Sunrise Sunset](https://sunrise-sunset.org/) -- getting sunrise/sunset times
 
-## Acknowledgements
+For the wallpapers seen in the demonstration, go [here](https://imgur.com/gallery/D6ia1).
 
--  [requests](https://github.com/requests/requests) - for API calls
--  [ip-api.com](http://ip-api.com/) - approximating location
--  [Sunrise Sunset](https://sunrise-sunset.org/) - getting sunrise/sunset times
+### License
 
-Originally inspired by [this](https://old.reddit.com/r/androidthemes/comments/452tfn/firewatch_with_changing_wallpapers/) Reddit post. For the wallpapers seen in the demonstration gif, go [here](https://imgur.com/gallery/D6ia1).
-
-## Future Features
-
-- cron compatibility
-- option to log results/errors to a file
-- easier/automated installation
-
-## License
-
-This script is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for full details.
+This repository is under the MIT License -- see [LICENSE.md](LICENSE.md) for full details.
