@@ -1,171 +1,196 @@
-#!/path/to/python/executable
+# SunCycleWallpaper
+# by Umair Khan
 
-## SunCycleChanger.py
-## by Umair Khan
+# Change the wallpaper in a GNOME desktop environment with
+# location-based real-time sunrise/sunset data.
 
-## A script to change the wallpaper in a GNOME desktop environment with 
-## location-based real-time sunrise/sunset data.
+# Uses the ip-api (https://ip-api.com/) to get location data
+# based on the Internet connection and Sunrise Sunset
+# (https://sunrise-sunset.org/api) to get sun timings.
 
-## Imports
-import requests
+# Imports
+import os
 import json
-import socket
-from os import system
-from datetime import datetime
+import requests
+import datetime as dt
+import dateutil.parser as dup
+import dateutil.relativedelta as dur
+import dateutil.utils as duu
+import subprocess
 
-## File paths
-wallpaper_dawn = "file:///absolute/path/to/dawn/file"
-wallpaper_day = "file:///absolute/path/to/day/file"
-wallpaper_dusk = "file:///absolute/path/to/dusk/file"
-wallpaper_night = "file:///absolute/path/to/night/file"
-data_path = "/absolute/path/to/data/file"
+# Load and verify configuration file
+def load_config():
 
+    # Load file
+    with open("config.json", "r") as f:
+        config = json.load(f)
 
+    # Check for correct fields
+    fields = {"dawn", "day", "dusk", "night", "dawn_window", "dusk_window"}
+    assert fields.issubset(config), "Required fields not present."
 
-### UTILITY FUNCTIONS ###
+    # Check for valid data in fields
+    assert os.path.isfile(config["dawn"]), "Path for 'dawn' is not valid."
+    assert os.path.isfile(config["day"]), "Path for 'day' is not valid."
+    assert os.path.isfile(config["dusk"]), "Path for 'dusk' is not valid."
+    assert os.path.isfile(config["night"]), "Path for 'night' is not valid."
+    assert type(config["dawn_window"]) == int and config["dawn_window"] > 0, "Dawn window must be a positive integer."
+    assert type(config["dusk_window"]) == int and config["dusk_window"] > 0, "Dusk window must be a positive integer."
 
-# Function to check if internet connection is available
-def check_connection():
+    # If everything checks out, return the configuration
+    return config
 
-	# Attempt to connect to Google
-	try:
-		socket.create_connection(("www.google.com", 80))
-		return True
-	except OSError:
-		pass
-	return False
+# Load and verify data file
+def load_data():
 
-# Function to get the given digit of a number
-def get_digit(number, n):
-	return number // 10**n % 10
+    # Load file
+    with open("data.json", "r") as f:
+        data = json.load(f)
 
-# Function to add numbers (under 60) as minutes
-def add(original, to_add):
+    # Check for correct fields
+    fields = {"date", "lat", "lon", "sunrise", "sunset"}
+    assert fields.issubset(data), "Required fields not present."
 
-	# Add the numbers normally, and roll over if necessary
-	actual = original + to_add
+    # Check for valid lat/lon
+    assert type(data["lat"]) == float and -90 <= data["lat"] <= 90, "Field 'lat' must be a float between -90 and +90."
+    assert type(data["lon"]) == float and -180 <= data["lon"] <= 180, "Field 'lon' must be a float between -180 and +180."
 
-	if get_digit(actual, 1) > 5 or get_digit(actual, 2) != get_digit(original, 2):
-		actual += 40
+    # Check for valid dates and times
+    try:
+        dup.parse(data["date"])
+        dup.parse(data["sunrise"])
+        dup.parse(data["sunset"])
+    except:
+        assert False, "At least one of the 'date', 'sunrise', or 'sunset' fields could not be parsed."
 
-	# Account for crossing past 2400
-	if actual > 2400:
-		return actual - 2400
+    # If everything checks out, return the data
+    return data
 
-	return actual
+# Figure out if an update is required
+def update_required():
 
-# Function to subtract numbers (under 60) as minutes
-def subtract(original, to_sub):
+    # Grab the latest data
+    try:
+        curr_data = load_data()
+    except:
+        return True, "Data file missing or corrupted. Update required."
 
-	# Subtract the numbers normally, and roll over if necessary
-	actual = original - to_sub
+    # Check if the date has changed
+    new_date = str(dt.datetime.now())[:10]
+    if new_date != curr_data["date"]:
+        return True, "Date has changed. Update required."
 
-	if get_digit(actual, 1) > 5 or get_digit(actual, 2) != get_digit(original, 2):
-		actual -= 40
+    # If the date is the same, get the current location
+    try:
+        ip_data = json.loads(requests.get("http://ip-api.com/json").text)
+        new_lat = round(ip_data["lat"], 1)
+        new_lon = round(ip_data["lon"], 1)
+    except:
+        return False, "Unable to acquire latitude and longitude information. No data update will be performed."
 
-	# Account for crossing below 0
-	if actual < 0:
-		return actual + 2400
+    # Check if the location has changed significantly
+    lat_diff = abs(new_lat - curr_data["lat"])
+    lon_diff = abs(new_lon - curr_data["lon"])
+    if lat_diff > 0.2 or lon_diff > 0.2:
+        return True, "Location has changed. Update required."
 
-	return actual
+    # If nothing has triggered, no update required
+    return False, "No update required."
 
+# Update the data file with latest information
+def update_data():
 
+    # Initialize dictionary with system date
+    data = {}
+    data["date"] = str(dt.datetime.now())[:10]
 
-### UPDATE FUNCTIONS ###
+    # Get the current latitude and longitde
+    try:
+        ip_data = json.loads(requests.get("http://ip-api.com/json").text)
+        data["lat"] = round(ip_data["lat"], 1)
+        data["lon"] = round(ip_data["lon"], 1)
+    except:
+        return "Unable to acquire latitude and longitude information."
 
-# Function to check if the current data file needs to be updated
-def update_required(new_lat, new_lon, new_date):
+    # Get sunrise and sunset times (UTC) for current date (system) and location
+    try:
+        api_str = f"https://api.sunrise-sunset.org/json?date={data['date']}&lat={data['lat']}&lng={data['lon']}&formatted=0"
+        sun_data = json.loads(requests.get(api_str).text)
+        data["sunrise"] = sun_data["results"]["sunrise"]
+        data["sunset"] = sun_data["results"]["sunset"]
+    except:
+        return "Unable to acquire sunrise and sunset information."
 
-	# Open and parse the old file
-	old_file = open(data_path, "r")
-	old_coor = old_file.readline().split(",")
-	old_lat = float(old_coor[0])
-	old_lon = float(old_coor[1])
-	old_date = old_file.readline().rstrip()
-	old_file.close()
+    # Write dictionary to file as JSON
+    try:
+        with open("data.json", "w", encoding = "utf-8") as f:
+            json.dump(data, f, ensure_ascii = False, indent = 2)
+        return "Data update successful."
+    except:
+        return "Unable to write new data to file."
 
-	# Calculate differences
-	lat_diff = abs(round(new_lat - old_lat, 1))
-	lon_diff = abs(round(new_lon - old_lon, 1))
+# Update the wallpaper based on the current configuration and data.
+def update_wallpaper():
 
-	# Determine if update is necessary
-	if lat_diff > 0.2 or lon_diff > 0.2 or new_date != old_date:
-		return True
+    # Grab the configuration
+    try:
+        config = load_config()
+    except AssertionError as e:
+        return f"Unable to load configuration file. {str(e)}"
+    except:
+        return "Unable to load configuration file. Unknown error."
 
-	return False
+    # Grab the latest data
+    try:
+        data = load_data()
+    except AssertionError as e:
+        return f"Unable to load data file. {str(e)}"
+    except:
+        return "Unable to load data file. Unknown error."
 
-# Function to update the background based on values in data_path
-def update_background():
+    # Get the current time (UTC), create deltas, and parse sunrise/sunset times
+    now = dt.datetime.now(dt.timezone.utc)
+    dawn_delta = dt.timedelta(minutes = config["dawn_window"])
+    dusk_delta = dt.timedelta(minutes = config["dusk_window"])
+    sunrise = dup.parse(data["sunrise"])
+    sunset = dup.parse(data["sunset"])
 
-	# Get the current time
-	current_time = int(str(datetime.time(datetime.utcnow()))[:5].replace(':', ''))
+    # Pick the correct wallpaper
+    wallpaper = ""
+    if duu.within_delta(now, sunrise, dawn_delta):
+        wallpaper = config["dawn"]
+    elif duu.within_delta(now, sunset, dusk_delta):
+        wallpaper = config["dusk"]
+    elif sunrise < now < sunset:
+        wallpaper = config["day"]
+    elif sunset < now:
+        wallpaper = config["night"]
 
-	# Read data from file
-	data_file = open(data_path, "r")
-	data = data_file.readlines()
-	times, files = [None] * 4, [None] * 4
-	times[0], files[0] = int(data[2]), wallpaper_dawn
-	times[1], files[1] = int(data[3]), wallpaper_day
-	times[2], files[2] = int(data[4]), wallpaper_dusk
-	times[3], files[3] = int(data[5]), wallpaper_night
-	data_file.close()
+    # Make sure a wallpaper is picked
+    if wallpaper == "":
+        return "Could not change wallpaper. Logical error in time calculations."
 
-	# Sort times and periods (based on times)
-	together = zip(times, files)
-	after_sort = sorted(together)
-	times, files = zip(*after_sort)
-	times, files = list(times), list(files)
+    # Change the wallpaper
+    subprocess.call(f"gsettings set org.gnome.desktop.background picture-uri file://{wallpaper}", shell = True)
+    subprocess.call(f"gsettings set org.gnome.desktop.screensaver picture-uri file://{wallpaper}", shell = True)
+    return f"Wallpaper and screensaver changed to {wallpaper}."
 
-	# Get the appropriate file name based on current time
-	file = ""
-	if current_time >= times[0] and current_time < times[1]:
-		file = files[0]
-	elif current_time >= times[1] and current_time < times[2]:
-		file = files[1]
-	elif current_time >= times[2] and current_time < times[3]:
-		file = files[2]
-	else:
-		file = files[3]
+# Main script
+if __name__ == "__main__":
 
-	# Update background
-	system("gsettings set org.gnome.desktop.background picture-uri " + file)
-	system("gsettings set org.gnome.desktop.screensaver picture-uri " + file)
+    # Print current date and time
+    print(f"Starting run at {str(dt.datetime.now())}.")
 
+    # Check if an update is required
+    print("Determining if data update required...")
+    update, update_message = update_required()
+    print(update_message)
 
+    # If an update is required, update data
+    if update:
+        print("Attempting to update data...")
+        print(update_data())
 
-### UPDATE ROUTINE ###
-
-# If there is an internet connection, try getting fresh data
-result = check_connection()
-
-if result:
-
-	# Get the current location coordinates
-	ip_data = json.loads(requests.get("http://ip-api.com/json").text)
-	lat = round(ip_data["lat"], 1)
-	lon = round(ip_data["lon"], 1)
-
-	# Get the current date
-	date = datetime.today().strftime("%Y-%m-%d")
-
-	# Check if an update is required
-	if update_required(lat, lon, date):
-
-		# Get the new sunrise and sunset times
-		sun_data = json.loads(requests.get("https://api.sunrise-sunset.org/json?lat=" + str(lat) + "&lng=" + str(lon) + "&formatted=0", verify = False).text)
-		sunrise = int(str(sun_data["results"]["sunrise"][11:16].replace(':', '')))
-		sunset = int(str(sun_data["results"]["sunset"][11:16].replace(':', '')))
-
-		# Calculate dawn/dusk changes
-		change_to_dawn = subtract(sunrise, 45)
-		change_to_day = add(sunrise, 30)
-		change_to_dusk = subtract(sunset, 45)
-		change_to_night = add(sunset, 30)
-
-		# Write data to file
-		file = open(data_path, "w")
-		file.write(str(lat) + "," + str(lon) + "\n" + date + "\n" + str(change_to_dawn) + "\n" + str(change_to_day) + "\n" + str(change_to_dusk) + "\n" + str(change_to_night) + "\n")
-		file.close()
-
-# Update the background based on the times in the file
-update_background()
+    # Change wallpaper based on current data
+    print("Attempting to update wallpaper...")
+    print(update_wallpaper())
