@@ -2,7 +2,7 @@
 
 A Python script to change the wallpaper in a GNOME desktop environment according to location-based real-time sunrise/sunset data.
 
-![Demonstration](demo.gif)
+![demo](demo.gif)
 
 *Note: An internet connection is required. If the connection is lost, the wallpaper will be updated based on the last-known location and sunrise/sunset data.*
 
