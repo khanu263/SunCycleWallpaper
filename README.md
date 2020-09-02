@@ -38,4 +38,4 @@ For the wallpapers seen in the demonstration, go [here](https://imgur.com/galler
 
 ### License
 
-This repository is under the MIT License -- see [LICENSE.md](LICENSE.md) for full details.
+This repository is under the GNU GPLv3 license -- see [COPYING](COPYING) for full details.
