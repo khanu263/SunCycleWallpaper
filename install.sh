@@ -3,7 +3,7 @@
 # Initial information
 echo ""
 echo "This script will install everything to ~/.scw, guide you through the initial"
-echo "configuration, and add a cron job to run things every five minutes."
+echo "configuration, and add a cron job to run things every fifth minute each hour."
 echo ""
 echo "If you wish to change anything after running this script, please directly"
 echo "edit the files in ~/.scw or use crontab -e as required."
