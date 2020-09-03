@@ -163,7 +163,7 @@ def update_wallpaper():
         wallpaper = config["dusk"]
     elif sunrise < now < sunset:
         wallpaper = config["day"]
-    elif sunset < now:
+    elif now < sunrise or sunset < now:
         wallpaper = config["night"]
 
     # Make sure a wallpaper is picked
