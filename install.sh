@@ -40,15 +40,21 @@ echo "  \"dusk_window\": $dusk_window" >> ~/.scw/config.json
 echo "}" >> ~/.scw/config.json
 echo ""
 
-# Add cron job
-echo "Adding cron job..."
+# Add cron jobs
+echo "Adding cron jobs..."
 crontab -l > ~/.scw/cron.bak
 cp ~/.scw/cron.bak ~/.scw/newcron
 echo "*/5 * * * * ~/.scw/run.sh" >> ~/.scw/newcron
-echo "@reboot sleep 10 && ~/.scw/run.sh" >> ~/.scw/newcron
+echo "@reboot sleep 60 && ~/.scw/run.sh" >> ~/.scw/newcron
 crontab ~/.scw/newcron
 rm ~/.scw/newcron
 echo "New cron file installed. Old file available as ~/.scw/cron.bak."
+echo ""
+
+# Performing initial run
+echo "Performing initial run..."
+~/.scw/run.sh
+echo "Output for each run at ~/.scw/log.txt."
 echo ""
 
 # Final words
