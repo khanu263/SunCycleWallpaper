@@ -1,6 +1,6 @@
 # SunCycleWallpaper
 
-A Python script to change the wallpaper in a GNOME desktop environment according to location-based real-time sunrise/sunset data.
+A simple Python script to change the wallpaper in a GNOME desktop environment according to location-based real-time sunrise/sunset data.
 
 ![demo](demo.gif)
 
