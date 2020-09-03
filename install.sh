@@ -3,7 +3,8 @@
 # Initial information
 echo ""
 echo "This script will install everything to ~/.scw, guide you through the initial"
-echo "configuration, and add a cron job to run things every fifth minute each hour."
+echo "configuration, and add cron jobs to run things every fifth minute in every"
+echo "hour, as well as at each reboot."
 echo ""
 echo "If you wish to change anything after running this script, please directly"
 echo "edit the files in ~/.scw or use crontab -e as required."
@@ -44,6 +45,7 @@ echo "Adding cron job..."
 crontab -l > ~/.scw/cron.bak
 cp ~/.scw/cron.bak ~/.scw/newcron
 echo "*/5 * * * * ~/.scw/run.sh" >> ~/.scw/newcron
+echo "@reboot sleep 10 && ~/.scw/run.sh" >> ~/.scw/newcron
 crontab ~/.scw/newcron
 rm ~/.scw/newcron
 echo "New cron file installed. Old file available as ~/.scw/cron.bak."

@@ -19,7 +19,7 @@ Before getting started, make sure you have the `requests` and `dateutil` modules
 
 ### How things work
 
-By default, everything is installed to `~/.scw`. The installation script will set up a cron job that runs the updater every fifth minute of every hour, so you should start seeing results pretty soon. The output from every run of the updater is stored at `~/.scw/log.txt`.
+By default, everything is installed to `~/.scw`. The installation script will add cron jobs to run the updater every fifth minute of every hour, and at boot, so you should start seeing results pretty soon. The output from every run of the updater is stored at `~/.scw/log.txt`.
 
 The configuration data entered during the installation process is formatted as JSON and stored in `~/.scw/config.json`. If you want to change the wallpaper paths or dawn/dusk windows, this is the file to edit.
 
