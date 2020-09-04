@@ -171,8 +171,7 @@ def update_wallpaper():
         return "Could not change wallpaper. Logical error in time calculations."
 
     # Change the wallpaper
-    subprocess.call(f"gsettings set org.gnome.desktop.background picture-uri file://{wallpaper}", shell = True)
-    subprocess.call(f"gsettings set org.gnome.desktop.screensaver picture-uri file://{wallpaper}", shell = True)
+    subprocess.call(f"feh --bg-fill {wallpaper}", shell = True)
     return f"Wallpaper and screensaver changed to {wallpaper}."
 
 # Main script
