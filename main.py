@@ -54,7 +54,7 @@ def load_data():
     # Check for valid lat/lon
     assert type(data["lat"]) == float and -90 <= data["lat"] <= 90, "Field 'lat' must be a float between -90 and +90."
     assert type(data["lon"]) == float and -180 <= data["lon"] <= 180, "Field 'lon' must be a float between -180 and +180."
-
+    
     # Check for valid dates and times
     try:
         dup.parse(data["date"])
@@ -62,7 +62,7 @@ def load_data():
         dup.parse(data["sunset"])
     except:
         assert False, "At least one of the 'date', 'sunrise', or 'sunset' fields could not be parsed."
-
+    
     # If everything checks out, return the data
     return data
 
@@ -154,7 +154,10 @@ def update_wallpaper():
     dusk_delta = dt.timedelta(minutes = config["dusk_window"])
     sunrise = dup.parse(data["sunrise"])
     sunset = dup.parse(data["sunset"])
-
+    
+    while (sunrise + dt.timedelta (hours = 23) < now):
+        now = now - dt.timedelta (days = 1)
+    
     # Pick the correct wallpaper
     wallpaper = ""
     if duu.within_delta(now, sunrise, dawn_delta):
