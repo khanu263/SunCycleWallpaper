@@ -62,7 +62,7 @@ def load_data():
         dup.parse(data["sunset"])
     except:
         assert False, "At least one of the 'date', 'sunrise', or 'sunset' fields could not be parsed."
-    print (dup.parse(data["date"]))
+    
     # If everything checks out, return the data
     return data
 
@@ -136,7 +136,7 @@ def update_wallpaper():
     try:
         config = load_config()
     except AssertionError as e:
-        return "Unable to load configuration file. {str(e)}"
+        return f"Unable to load configuration file. {str(e)}"
     except:
         return "Unable to load configuration file. Unknown error."
 
@@ -144,7 +144,7 @@ def update_wallpaper():
     try:
         data = load_data()
     except AssertionError as e:
-        return "Unable to load data file. {str(e)}"
+        return f"Unable to load data file. {str(e)}"
     except:
         return "Unable to load data file. Unknown error."
 
