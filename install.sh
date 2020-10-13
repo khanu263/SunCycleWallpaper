@@ -20,7 +20,7 @@ echo "be sure to have feh installed when choosing this option"
 echo ""
 
 read -p "Do you want the wallpaper to be set by (g)settings or (f)eh?" option
-if [[ option == "f" ]]; then
+if [[ $option == "f" ]]; then
     # This command replaces the gsettings lines with the feh command
     sed -i -e 's/gsettings set org.gnome.desktop.background picture-uri file:\/\/{wallpaper}/feh --bg-fill {wallpaper}/' -e '/gsettings set org.gnome.desktop.screensaver/d' main.py
 fi
