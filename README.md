@@ -1,6 +1,6 @@
 # SunCycleWallpaper
 
-A simple Python script to change the wallpaper in a GNOME desktop environment according to location-based real-time sunrise/sunset data.
+A simple Python script to change the wallpaper according to location-based real-time sunrise/sunset data.
 
 ![demo](demo.gif)
 
@@ -8,7 +8,8 @@ A simple Python script to change the wallpaper in a GNOME desktop environment ac
 
 ### Prerequisites
 
-This script was developed with Python 3.8.2 and GNOME Shell 3.36.4, but things should work with any version of Python 3 and any reasonably modern version of the GNOME shell, since the `gsettings` command is used to change the wallpaper.
+This script was developed with Python 3.8.2, GNOME Shell 3.36.4, and feh but things should work with any version of Python 3 and any reasonably modern version of the GNOME shell or feh.
+For setting the wallpaper, either gsettings or feh are available.
 
 Before getting started, make sure you have the `requests` and `dateutil` modules installed for Python 3. In particular, these modules should be accessible from your "base" version of Python 3, outside of any environments.
 
