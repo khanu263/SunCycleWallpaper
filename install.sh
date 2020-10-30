@@ -10,6 +10,21 @@ echo "If you wish to change anything after running this script, please directly"
 echo "edit the files in ~/.scw or use crontab -e as required."
 echo ""
 
+# Decision between gnome or feh as background backend
+echo ""
+echo "Your background can either be set by gsettings or feh."
+echo "only choose the gsettings option when using gnome"
+echo "otherwise this script uses feh to set the background"
+echo "feh is a minimal X11 image viewer"
+echo "be sure to have feh installed when choosing this option"
+echo ""
+
+read -p "Do you want the wallpaper to be set by (g)settings or (f)eh?" option
+if [[ $option == "f" ]]; then
+    # This command replaces the gsettings lines with the feh command
+    sed -i -e 's/gsettings set org.gnome.desktop.background picture-uri file:\/\/{wallpaper}/feh --bg-fill {wallpaper}/' -e '/gsettings set org.gnome.desktop.screensaver/d' main.py
+fi
+
 # Copy over files
 mkdir ~/.scw
 echo "Created ~/.scw directory."
